@@ -27,13 +27,14 @@ function delay(time, length) {
 }
 
 async function start() {
-  const dateList = generateDateList('202103027', '20210525')
+  const dateList = generateDateList('20210327', '20210525')
   const fileUrl = './T86.json'
   for (date of dateList) {
     console.log(date);
     const fileStockData = await jsonfile.readFile(fileUrl);
     const newStockData = await getT86(date)
-    fileStockData.push(newStockData)
+    if (newStockData)
+      fileStockData.push(newStockData.find(e => e[0] === '2330'))
     await jsonfile.writeFile(fileUrl, fileStockData);
     await delay(3000, 1)
   }

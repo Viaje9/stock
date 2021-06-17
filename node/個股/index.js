@@ -9,9 +9,9 @@ function getStock(date, id) {
 
 function generateDateList() {
   const dateList = []
-  for (let y = 2021; y < 2022; y++) {
+  for (let y = 2018; y < 2022; y++) {
     for (let m = 1; m < 13; m++) {
-      if ((y === 2021) && (m > 5)) {
+      if ((y === 2021) && (m > 6)) {
       } else {
         dateList.push(`${y}${m < 10 ? '0' + m : m}01`)
       }
@@ -34,9 +34,10 @@ async function start() {
     console.log(date);
     const fileStockData = await jsonfile.readFile(fileUrl);
     const newStockData = await getStock(date, 2330)
-    fileStockData.push(newStockData)
+    if (newStockData.length)
+      fileStockData.push(...newStockData)
     await jsonfile.writeFile(fileUrl, fileStockData);
-    await delay(1000, 1)
+    await delay(3000, 1)
   }
   console.log('done');
 }
@@ -53,3 +54,10 @@ start()
 // }
 
 // name()
+
+/**
+ * e[3] 開盤
+ * e[4] 收盤
+ * e[5] 最低
+ * e[6] 最高
+ */

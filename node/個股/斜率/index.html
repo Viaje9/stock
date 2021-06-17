@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    fetch('./2330.json').then(e => e.json()).then(res => {
+      console.log(res);
+      const data = res.map((e, i) => {
+        if (i === 0) return [e[0], null, null]
+        const x = (+e[6]) - (+res[i - 1][5])
+        // return x ? +((1 / x).toFixed(3)) : x
+        const change = +((x / (+res[i - 1][5])) * 100).toFixed(1)
+        const a = parseInt(change / 1)
+        return [e[0], change, a]
+      })
+      const computed = data.reduce((acc, cur) => {
+        
+        if(cur[2]===14){
+          console.log(cur);
+        }
+
+        if (acc.has(cur[2])) {
+          const count = acc.get(cur[2]) + 1
+          acc.set(cur[2], count)
+        } else {
+          acc.set(cur[2], 1)
+        }
+        return acc
+      }, new Map())
+      // console.log(data);
+      console.log(computed);
+      return data
+    })
+    // 以一為單位計算符合單位內的數目有多少
+    /**
+     * e[0] 日期
+     * e[1] 成交股數
+     * e[2] 成交金額
+     * e[3] 開盤
+     * e[4] 收盤
+     * e[5] 最低
+     * e[6] 最高
+     * e[7] 漲跌價差
+     * e[8] 成交筆數
+     */
+  </script>
+</body>
+
+</html>
