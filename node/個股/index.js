@@ -13,7 +13,7 @@ function generateDateList() {
     for (let m = 1; m < 13; m++) {
       if ((y === 2021) && (m > 6)) {
       } else {
-        dateList.push(`${y}${m < 10 ? '0' + m : m}01`)
+        dateList.push(`${y}${m < 21 ? '0' + m : m}01`)
       }
     }
   }

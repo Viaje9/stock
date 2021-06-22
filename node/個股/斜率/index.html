@@ -10,32 +10,41 @@
 
 <body>
   <script>
+    function PCT(p2, p1) {
+      return +((p2 - p1) / p1 * 100).toFixed(1)
+    }
     fetch('./2330.json').then(e => e.json()).then(res => {
-      console.log(res);
+      // console.log(res);
       const data = res.map((e, i) => {
         if (i === 0) return [e[0], null, null]
-        const x = (+e[6]) - (+res[i - 1][5])
         // return x ? +((1 / x).toFixed(3)) : x
-        const change = +((x / (+res[i - 1][5])) * 100).toFixed(1)
-        const a = parseInt(change / 1)
-        return [e[0], change, a]
-      })
-      const computed = data.reduce((acc, cur) => {
-        
-        if(cur[2]===14){
-          console.log(cur);
-        }
+        const y = res[i - 1]
+        const tO = +e[3], tC = +e[4], tL = +e[5], tH = +e[6]
+        const yO = +y[3], yC = +y[4], yL = +y[5], yH = +y[6]
 
-        if (acc.has(cur[2])) {
-          const count = acc.get(cur[2]) + 1
-          acc.set(cur[2], count)
+        const LtoH = PCT(tH, yL)
+        const LtoHBlock = parseInt(LtoH / 1)
+
+        const CtoL = PCT(tL, yC)
+        const CtoLBlock = parseInt(CtoL / 1)
+        return [e[0], LtoH, LtoHBlock, CtoL, CtoLBlock]
+      })
+      console.log(data);
+      const computed = data.reduce((acc, cur) => {
+
+        if (acc.has(cur[4])) {
+          const count = acc.get(cur[4]) + 1
+          acc.set(cur[4], count)
         } else {
-          acc.set(cur[2], 1)
+          acc.set(cur[4], 1)
         }
         return acc
       }, new Map())
       // console.log(data);
-      console.log(computed);
+      // console.log(computed);
+      const sortComputed = Array.from(computed).sort(([a,], [b,]) => a - b)
+      console.log(sortComputed);
+
       return data
     })
     // 以一為單位計算符合單位內的數目有多少
