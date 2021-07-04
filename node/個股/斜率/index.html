@@ -17,7 +17,7 @@
       // console.log(res);
       const data = res.map((e, i) => {
         if (i === 0) return [e[0], null, null]
-        // return x ? +((1 / x).toFixed(3)) : x
+        const date = e[0]
         const y = res[i - 1]
         const tO = +e[3], tC = +e[4], tL = +e[5], tH = +e[6]
         const yO = +y[3], yC = +y[4], yL = +y[5], yH = +y[6]
@@ -27,9 +27,12 @@
 
         const CtoL = PCT(tL, yC)
         const CtoLBlock = parseInt(CtoL / 1)
-        return [e[0], LtoH, LtoHBlock, CtoL, CtoLBlock]
+
+        if (CtoL < -4 && CtoL > -7) {
+          console.log(date, LtoH, CtoL);
+        }
+        return [date, LtoH, LtoHBlock, CtoL, CtoLBlock]
       })
-      console.log(data);
       const computed = data.reduce((acc, cur) => {
 
         if (acc.has(cur[4])) {

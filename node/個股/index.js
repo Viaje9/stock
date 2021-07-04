@@ -1,48 +1,54 @@
-const jsonfile = require('jsonfile')
+const jsonfile = require("jsonfile");
 const axios = require("axios");
 
+// 取得個股資料
 function getStock(date, id) {
-  const url = `https://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=${date}&stockNo=${id}`
-  const config = { headers: { Host: "www.twse.com.tw" } }
+  /**
+   * @param {String} date 個股的月份
+   * @param {Number} id 個股的ID
+   */
+  const url = `https://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=${date}&stockNo=${id}`;
+  const config = { headers: { Host: "www.twse.com.tw" } };
   return axios.get(url, config).then(({ data: { data } }) => data);
 }
 
+// 產生月份清單
 function generateDateList() {
-  const dateList = []
+  const dateList = [];
   for (let y = 2018; y < 2022; y++) {
     for (let m = 1; m < 13; m++) {
-      if ((y === 2021) && (m > 6)) {
+      if (y === 2021 && m > 6) {
       } else {
-        dateList.push(`${y}${m < 21 ? '0' + m : m}01`)
+        dateList.push(`${y}${m < 21 ? "0" + m : m}01`);
       }
     }
   }
-  return dateList
+  return dateList;
 }
 
-const dateList = generateDateList()
+const dateList = generateDateList();
 
+// 延遲func
 function delay(time, length) {
   return new Promise((resolve) => {
-    setTimeout(resolve, time * length)
+    setTimeout(resolve, time * length);
   });
 }
 
 async function start() {
-  const fileUrl = './2330.json'
+  const fileUrl = "./2330.json";
   for (date of dateList) {
     console.log(date);
     const fileStockData = await jsonfile.readFile(fileUrl);
-    const newStockData = await getStock(date, 2330)
-    if (newStockData.length)
-      fileStockData.push(...newStockData)
+    const newStockData = await getStock(date, 2330);
+    if (newStockData.length) fileStockData.push(...newStockData);
     await jsonfile.writeFile(fileUrl, fileStockData);
-    await delay(3000, 1)
+    await delay(3000, 1);
   }
-  console.log('done');
+  console.log("done");
 }
 
-start()
+// start();
 
 // async function name() {
 
@@ -61,3 +67,13 @@ start()
  * e[5] 最低
  * e[6] 最高
  */
+
+getStock()
+
+
+async function test() {
+  const data = await getStock('20210601', 2330);
+  console.log(data);
+}
+
+test()
