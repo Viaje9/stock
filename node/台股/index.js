@@ -2,6 +2,9 @@ const axios = require("axios");
 const dayjs = require("dayjs");
 const mongoose = require("mongoose");
 const Stock = require("./models/Stock");
+const Ticker = require("./models/Ticker");
+const Detail = require("./models/Detail");
+mongoose.set("useFindAndModify", false);
 
 mongoose.connect("mongodb://localhost:27017/stock", {
   useNewUrlParser: true,
@@ -17,6 +20,12 @@ function getStock(date) {
   return axios.get(url, config).then(({ data: { data9 } }) => data9);
 }
 
+function getTMC(date) {
+  const url = `https://www.twse.com.tw/fund/T86?response=json&date=${date}&selectType=ALLBUT0999`;
+  const config = { headers: { Host: "www.twse.com.tw" } };
+  return axios.get(url, config).then(({ data: { data } }) => data);
+}
+
 function RemoveComma(text) {
   const newNum = Number(text.split(",").join(""));
   return isNaN(newNum) ? 0 : newNum;
@@ -25,7 +34,7 @@ function RemoveComma(text) {
 // 產生日期清單
 function generateDateList() {
   const dateList = [];
-  let date = dayjs("2019-01-01");
+  let date = dayjs("2020-01-01");
   while (date.isBefore(dayjs())) {
     const queryTime = date.format("YYYYMMDD");
     const storeTime = date.format("YYYY-MM-DD");
@@ -42,52 +51,106 @@ function delay(time, length) {
   });
 }
 
-async function start(db) {
-  console.log("db connection");
+function organizeDaily(item, storeTime) {
+  const [ticker, name, ssc, sc, sp, o, h, l, c, , spread, , , , , PER] = item;
+  const detail = {
+    date: storeTime,
+    ssc: RemoveComma(ssc),
+    sc: RemoveComma(sc),
+    sp: RemoveComma(sp),
+    o: RemoveComma(o),
+    h: RemoveComma(h),
+    l: RemoveComma(l),
+    c: RemoveComma(c),
+    spread: RemoveComma(spread),
+    PER: RemoveComma(PER)
+  };
+  const stockData = {
+    ticker,
+    name
+  };
+  return { stockData, detail, ticker };
+}
+
+function organizeTMC(item, storeTime) {
+  const [
+    ticker,
+    name,
+    fibc,
+    fisc,
+    fibsc,
+    ,
+    ,
+    ,
+    itbc,
+    itsc,
+    itbsc,
+    dbsc,
+    sdbc,
+    sdsc,
+    sdbsc,
+    hdbc,
+    hdsc,
+    hdbsc,
+    tmcbs
+  ] = item;
+  const detail = {
+    date: storeTime,
+    fibc: RemoveComma(fibc),
+    fisc: RemoveComma(fisc),
+    fibsc: RemoveComma(fibsc),
+    itbc: RemoveComma(itbc),
+    itsc: RemoveComma(itsc),
+    itbsc: RemoveComma(itbsc),
+    dbsc: RemoveComma(dbsc),
+    sdbc: RemoveComma(sdbc),
+    sdsc: RemoveComma(sdsc),
+    sdbsc: RemoveComma(sdbsc),
+    hdbc: RemoveComma(hdbc),
+    hdsc: RemoveComma(hdsc),
+    hdbsc: RemoveComma(hdbsc),
+    tmcbs: RemoveComma(tmcbs)
+  };
+
+  const stockData = {
+    ticker,
+    name
+  };
+  return { stockData, detail, ticker };
+}
+
+async function start() {
+  console.log("Start");
+
   const dateList = generateDateList();
   for ({ queryTime, storeTime } of dateList) {
-    const data = await getStock(queryTime);
-    await delay(1000, 3);
+    const data = await getStock(queryTime).catch((err) => {
+      console.log(err);
+    });
+    // const data = await getTMC(queryTime).catch((err) => {
+    //   console.log(err);
+    // });
+    await delay(1000, 1);
     if (data) {
-      data.forEach(async (item) => {
-        const [ticker, name, ssc, sc, sp, o, h, l, c, , spread, , , , , PER] =
-          item;
-        const detail = {
-          date: storeTime,
-          ssc: RemoveComma(ssc),
-          sc: RemoveComma(sc),
-          sp: RemoveComma(sp),
-          o: RemoveComma(o),
-          h: RemoveComma(h),
-          l: RemoveComma(l),
-          c: RemoveComma(c),
-          spread: RemoveComma(spread),
-          PER: RemoveComma(PER)
-        };
-        const stockData = {
-          ticker,
-          name,
-          detail
-        };
-        const queryTicker = await Stock.find({ ticker });
-        if (!queryTicker.length) {
-          Stock.create(stockData, function (err) {
-            if (err) {
-              console.log(_id);
-            }
-          });
-        } else {
-          Stock.updateOne({ ticker }, { $push: { detail } }, function (err) {
-            if (err) {
-              console.log(storeTime, _id);
-            }
-          });
-        }
-      });
+      // 個股
+      for (item of data) {
+        const { stockData, detail, ticker } = organizeDaily(item, storeTime);
+        // const { stockData, detail, ticker } = organizeTMC(item, storeTime);
+        const tickerID = await Ticker.findOneAndUpdate({ ticker }, stockData, {
+          new: true,
+          upsert: true
+        });
+        await Detail.findOneAndUpdate(
+          { ticker: tickerID._id, date: storeTime },
+          { ticker: tickerID._id, ...detail },
+          { upsert: true }
+        );
+      }
+      console.log(`${storeTime} done`);
     }
-    console.log(`${storeTime} done`);
   }
   console.log("done");
+  // db.close();
 }
 
 // async function test() {}
@@ -126,3 +189,71 @@ async function start(db) {
 //   { ticker: "0050", detail: [{ date: "2021-06-01" }] },
 //   { detail }
 // ).exec();
+
+// const data = await getTMC("20190102");
+// const item = data.find((e) => e[0] === "0050");
+// const [
+//   ,
+//   ,
+//   fibc,
+//   fisc,
+//   fibsc,
+//   ,
+//   ,
+//   ,
+//   itbc,
+//   itsc,
+//   itbsc,
+//   dbsc,
+//   sdbc,
+//   sdsc,
+//   sdbsc,
+//   hdbc,
+//   hdsc,
+//   hdbsc,
+//   tmcbs
+// ] = item;
+// const detail = {
+//   fibc: RemoveComma(fibc),
+//   fisc: RemoveComma(fisc),
+//   fibsc: RemoveComma(fibsc),
+//   itbc: RemoveComma(itbc),
+//   itsc: RemoveComma(itsc),
+//   itbsc: RemoveComma(itbsc),
+//   dbsc: RemoveComma(dbsc),
+//   sdbc: RemoveComma(sdbc),
+//   sdsc: RemoveComma(sdsc),
+//   sdbsc: RemoveComma(sdbsc),
+//   hdbc: RemoveComma(hdbc),
+//   hdsc: RemoveComma(hdsc),
+//   hdbsc: RemoveComma(hdbsc),
+//   tmcbs: RemoveComma(tmcbs)
+// };
+// console.log(detail);
+// Stock.updateOne(
+//   { ticker: "0050", detail: [{ date: "2019-01-02" }] },
+//   { detail },
+//   function (err) {
+//     if (err) {
+//       console.log("err");
+//     }
+//   }
+// );
+// console.log(data);
+
+  // const data = await getStock("20210702");
+  // const item = data.find((e) => e[0] === "0050");
+  // const { stockData, detail, ticker } = organizeDaily(item, "2021-07-02");
+  // const data = await getTMC("20210702");
+  // const item = data.find((e) => e[0] === "0050");
+  // const { stockData, detail, ticker } = organizeTMC(item, "2021-07-02");
+  // const tickerID = await Ticker.findOneAndUpdate({ ticker }, stockData, {
+  //   new: true,
+  //   upsert: true
+  // });
+
+  // await Detail.findOneAndUpdate(
+  //   { ticker: tickerID._id, date: "2021-07-02" },
+  //   { ticker: tickerID._id, ...detail },
+  //   { upsert: true }
+  // );

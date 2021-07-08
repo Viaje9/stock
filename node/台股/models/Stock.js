@@ -41,6 +41,48 @@ const Schema = new mongoose.Schema({
       },
       PER: {
         type: Number
+      },
+      fibc: {
+        type: Number
+      },
+      fisc: {
+        type: Number
+      },
+      fibsc: {
+        type: Number
+      },
+      itbc: {
+        type: Number
+      },
+      itsc: {
+        type: Number
+      },
+      itbsc: {
+        type: Number
+      },
+      dbsc: {
+        type: Number
+      },
+      sdbc: {
+        type: Number
+      },
+      sdsc: {
+        type: Number
+      },
+      sdbsc: {
+        type: Number
+      },
+      hdbc: {
+        type: Number
+      },
+      hdsc: {
+        type: Number
+      },
+      hdbsc: {
+        type: Number
+      },
+      tmcbs: {
+        type: Number
       }
     }
   ]

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.9.8/dayjs.min.js'
+    integrity='sha512-kZ+x2gdehn6OZMWZSp3Vt5R+v9hQTYEATQwaUfWquhxbvNVAy6IRtYs7asdyxKUTqG0I5ZqBqnzcBrpnHJCAGw=='
+    crossorigin='anonymous'></script>
+  <script>
+    fetch('./all.json').then(e => e.json()).then(allData => {
+      const newAllData = allData.map(([ticker, singleData]) => {
+        const data = singleData.map((detail, i, arr) => {
+          const c20Ary = [];
+          for (let n = 0; n < 20; n++) {
+            if (i > 19) {
+              c20Ary.push(arr[i - n].c);
+            }
+          }
+          const ma20 = c20Ary.length
+            ? c20Ary.reduce((acc, cur) => acc + cur, 0) / 20
+            : 0;
+          const SSD = c20Ary.reduce(
+            (acc, cur) =>
+              fixNum(acc + fixNum(Math.pow(fixNum(ma20 - cur), 2))),
+            0
+          );
+          const varian = fixNum(SSD / 20);
+          const SD = fixNum(Math.sqrt(varian));
+          const top = fixNum(ma20 + SD * 2);
+          const down = fixNum(ma20 - SD * 2);
+          const width = fixNum(((top - down) / ma20) * 100);
+          return {
+            o: detail.o,
+            h: detail.h,
+            l: detail.l,
+            c: detail.c,
+            date: detail.date,
+            ma20,
+            top,
+            down,
+            width,
+          };
+        })
+
+        const timing = data.filter((e, i, arr) => {
+          const day = [];
+          for (let n = 1; n < 11; n++) {
+            day.push(i + n);
+          }
+          return day.every((day) =>
+            arr[day] ? arr[day].width <= 5 : false
+          ) && (dayjs(e.date).unix() > 1623081600);
+        });
+        if (timing.length) {
+          console.log(ticker, timing);
+        }
+        // return [ticker, data]
+      })
+    })
+    function fixNum(num) {
+      return Number(num.toFixed(4));
+    }
+  </script>
+</body>
+
+</html>
