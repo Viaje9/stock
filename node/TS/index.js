@@ -124,18 +124,18 @@ async function start() {
 
   const dateList = generateDateList();
   for ({ queryTime, storeTime } of dateList) {
-    const data = await getStock(queryTime).catch((err) => {
-      console.log(err);
-    });
-    // const data = await getTMC(queryTime).catch((err) => {
+    // const data = await getStock(queryTime).catch((err) => {
     //   console.log(err);
     // });
+    const data = await getTMC(queryTime).catch((err) => {
+      console.log(err);
+    });
     await delay(1000, 1);
     if (data) {
       // 個股
       for (item of data) {
-        const { stockData, detail, ticker } = organizeDaily(item, storeTime);
-        // const { stockData, detail, ticker } = organizeTMC(item, storeTime);
+        // const { stockData, detail, ticker } = organizeDaily(item, storeTime);
+        const { stockData, detail, ticker } = organizeTMC(item, storeTime);
         const tickerID = await Ticker.findOneAndUpdate({ ticker }, stockData, {
           new: true,
           upsert: true
