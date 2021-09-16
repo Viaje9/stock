@@ -34,7 +34,7 @@
           const SD = fixNum(Math.sqrt(varian));
           const top = fixNum(ma20 + SD * 2);
           const down = fixNum(ma20 - SD * 2);
-          const width = fixNum(((top - down) / ma20) * 100);
+          const width = fixNum(top / down - 1);
           return {
             o: detail.o,
             h: detail.h,
@@ -55,7 +55,7 @@
           }
           return day.every((day) =>
             arr[day] ? arr[day].width <= 5 : false
-          ) && (dayjs(e.date).unix() > 1623081600);
+          ) && (dayjs(e.date).unix() > 1624464000);
         });
         if (timing.length) {
           console.log(ticker, timing);

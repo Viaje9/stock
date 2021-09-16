@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    #app {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .area {
+      margin: 10px;
+      width: 300px;
+      border: 1px solid black;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div class="area">
+      <div>
+        <label>投入資本</label>
+        <input v-model="v3.a" type="number">
+      </div>
+      <div>
+        <label>投資報酬率</label>
+        <input v-model="v3.b" type="number">
+      </div>
+      <div>
+        預期報酬： {{ v3R }}
+      </div>
+      <div>
+        預期報酬率： {{ v3CI }}
+      </div>
+    </div>
+    <div class="area">
+      <div>
+        <label>本金</label>
+        <input v-model="v1.PV" type="number">
+      </div>
+      <div>
+        <label>期數</label>
+        <input v-model="v1.n" type="number">
+      </div>
+      <div>
+        <label>投資報酬率</label>
+        <input v-model="v1.ROI" type="number">
+      </div>
+      <div>
+        預期報酬： {{ v1CI }}
+      </div>
+      <div>
+        報酬率：{{ v1TROI }}
+      </div>
+    </div>
+    <div class="area">
+      <div>
+        <label>本金</label>
+        <input v-model="v2.a" type="number">
+      </div>
+      <div>
+        <label>期數</label>
+        <input v-model="v2.n" type="number">
+      </div>
+      <div>
+        <label>月增資金</label>
+        <input v-model="v2.b" type="number">
+      </div>
+      <div>
+        <label>投資報酬率</label>
+        <input v-model="v2.c" type="number">
+      </div>
+      <div>
+        總投入資金： {{ v2TPV }}
+      </div>
+      <div>
+        預期報酬： {{ v2CI }}
+      </div>
+      <div>
+        報酬率：{{ v2TROI }}
+      </div>
+    </div>
+    <div class="area">
+      <div>
+        <label>本金</label>
+        <input v-model="v4.a" type="number">
+      </div>
+      <div>
+        <label>期數</label>
+        <input v-model="v4.b" type="number">
+      </div>
+      <div>
+        <label>定期定額</label>
+        <input v-model="v4.c" type="number">
+      </div>
+      <div>
+        總投入資金： {{ v4TPV }}
+      </div>
+      <div>
+        預期報酬： {{ v4CI }}
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        v1: {
+          PV: 20000,
+          ROI: 0.02,
+          n: 12
+        },
+        v2: {
+          a: 20000,
+          b: 1000,
+          c: 0.02,
+          n: 12
+        },
+        v3: {
+          a: 5000,
+          b: 0.02
+        },
+        v4: {
+          a: 20000,
+          b: 8,
+          c: 3000
+        }
+      },
+      computed: {
+        v1CI() {
+          const { PV, ROI, n } = this.v1
+          return (PV * Math.pow(1 + +ROI, +n)).toFixed(2)
+        },
+        v1TROI() {
+          return ((this.v1CI - this.v1.PV) / this.v1CI).toFixed(2)
+        },
+        v2CI() {
+          const { a, b, c, n } = this.v2
+          let r = +a * (1 + +c) + +b
+          Array(n - 1).fill(0).forEach(() => {
+            r = r * (1 + +c) + +b
+          })
+          return r.toFixed(2)
+        },
+        v2TPV() {
+          const { a, b, c, n } = this.v2
+          return +a + +b * +n
+        },
+        v2TROI() {
+          return ((+this.v2CI - this.v2TPV) / this.v2TPV).toFixed(2)
+        },
+        v3CI() {
+          const { a, b } = this.v3
+          return (+a * (1 + +b)).toFixed(2)
+        },
+        v3R() {
+          const { a, b } = this.v3
+          return (+a * (+b)).toFixed(2)
+        },
+        v4TPV() {
+          const { b, c } = this.v4
+          return +b * (+c)
+        },
+        v4CI() {
+          return this.v4TPV + +this.v4.a
+        }
+
+      }
+    })
+  </script>
+</body>
+
+</html>
