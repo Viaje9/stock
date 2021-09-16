@@ -1,9 +1,9 @@
 const axios = require("axios");
 const dayjs = require("dayjs");
 const mongoose = require("mongoose");
-const Stock = require("./models/Stock");
+const FID = require("./models/FID");
+const TI = require("./models/TI");
 const Ticker = require("./models/Ticker");
-const Detail = require("./models/Detail");
 mongoose.set("useFindAndModify", false);
 
 mongoose.connect("mongodb://localhost:27017/stock", {
@@ -26,15 +26,20 @@ function getTMC(date) {
   return axios.get(url, config).then(({ data: { data } }) => data);
 }
 
-function RemoveComma(text) {
-  const newNum = Number(text.split(",").join(""));
-  return isNaN(newNum) ? 0 : newNum;
+function RemoveComma(text, ticker) {
+  try {
+    const newNum = Number(text.split(",").join(""));
+    return isNaN(newNum) ? 0 : newNum;
+  } catch (e) {
+    console.log(ticker);
+    return 0;
+  }
 }
 
 // 產生日期清單
 function generateDateList() {
   const dateList = [];
-  let date = dayjs("2020-01-01");
+  let date = dayjs("2020-6-25");
   while (date.isBefore(dayjs())) {
     const queryTime = date.format("YYYYMMDD");
     const storeTime = date.format("YYYY-MM-DD");
@@ -53,23 +58,19 @@ function delay(time, length) {
 
 function organizeDaily(item, storeTime) {
   const [ticker, name, ssc, sc, sp, o, h, l, c, , spread, , , , , PER] = item;
-  const detail = {
-    date: storeTime,
-    ssc: RemoveComma(ssc),
-    sc: RemoveComma(sc),
-    sp: RemoveComma(sp),
-    o: RemoveComma(o),
-    h: RemoveComma(h),
-    l: RemoveComma(l),
-    c: RemoveComma(c),
-    spread: RemoveComma(spread),
-    PER: RemoveComma(PER)
-  };
-  const stockData = {
+  return {
     ticker,
-    name
+    date: storeTime,
+    ssc: RemoveComma(ssc, ticker),
+    sc: RemoveComma(sc, ticker),
+    sp: RemoveComma(sp, ticker),
+    o: RemoveComma(o, ticker),
+    h: RemoveComma(h, ticker),
+    l: RemoveComma(l, ticker),
+    c: RemoveComma(c, ticker),
+    spread: RemoveComma(spread, ticker),
+    PER: RemoveComma(PER, ticker)
   };
-  return { stockData, detail, ticker };
 }
 
 function organizeTMC(item, storeTime) {
@@ -94,64 +95,46 @@ function organizeTMC(item, storeTime) {
     hdbsc,
     tmcbs
   ] = item;
-  const detail = {
-    date: storeTime,
-    fibc: RemoveComma(fibc),
-    fisc: RemoveComma(fisc),
-    fibsc: RemoveComma(fibsc),
-    itbc: RemoveComma(itbc),
-    itsc: RemoveComma(itsc),
-    itbsc: RemoveComma(itbsc),
-    dbsc: RemoveComma(dbsc),
-    sdbc: RemoveComma(sdbc),
-    sdsc: RemoveComma(sdsc),
-    sdbsc: RemoveComma(sdbsc),
-    hdbc: RemoveComma(hdbc),
-    hdsc: RemoveComma(hdsc),
-    hdbsc: RemoveComma(hdbsc),
-    tmcbs: RemoveComma(tmcbs)
-  };
-
-  const stockData = {
+  return {
     ticker,
-    name
+    date: storeTime,
+    fibc: RemoveComma(fibc, ticker),
+    fisc: RemoveComma(fisc, ticker),
+    fibsc: RemoveComma(fibsc, ticker),
+    itbc: RemoveComma(itbc, ticker),
+    itsc: RemoveComma(itsc, ticker),
+    itbsc: RemoveComma(itbsc, ticker),
+    dbsc: RemoveComma(dbsc, ticker),
+    sdbc: RemoveComma(sdbc, ticker),
+    sdsc: RemoveComma(sdsc, ticker),
+    sdbsc: RemoveComma(sdbsc, ticker),
+    hdbc: RemoveComma(hdbc, ticker),
+    hdsc: RemoveComma(hdsc, ticker),
+    hdbsc: RemoveComma(hdbsc, ticker),
+    tmcbs: RemoveComma(tmcbs, ticker)
   };
-  return { stockData, detail, ticker };
 }
 
 async function start() {
-  console.log("Start");
-
   const dateList = generateDateList();
+
   for ({ queryTime, storeTime } of dateList) {
-    // const data = await getStock(queryTime).catch((err) => {
-    //   console.log(err);
-    // });
-    const data = await getTMC(queryTime).catch((err) => {
-      console.log(err);
-    });
-    await delay(1000, 1);
-    if (data) {
-      // 個股
-      for (item of data) {
-        // const { stockData, detail, ticker } = organizeDaily(item, storeTime);
-        const { stockData, detail, ticker } = organizeTMC(item, storeTime);
-        const tickerID = await Ticker.findOneAndUpdate({ ticker }, stockData, {
-          new: true,
-          upsert: true
-        });
-        await Detail.findOneAndUpdate(
-          { ticker: tickerID._id, date: storeTime },
-          { ticker: tickerID._id, ...detail },
-          { upsert: true }
-        );
-      }
+    // const rawData = await getStock(queryTime);
+    const rawData = await getTMC(queryTime);
+    await delay(1000, 3);
+    if (rawData) {
+      // const data = rawData.map((item) => organizeDaily(item, storeTime));
+      const data = rawData.map((item) => organizeTMC(item, storeTime));
+      // await TI.insertMany(data).catch((err) => console.log(storeTime));
+      await FID.insertMany(data).catch((err) => console.log(storeTime));
+
       console.log(`${storeTime} done`);
     }
   }
   console.log("done");
-  // db.close();
 }
+
+//
 
 // async function test() {}
 
@@ -241,19 +224,53 @@ async function start() {
 // );
 // console.log(data);
 
-  // const data = await getStock("20210702");
-  // const item = data.find((e) => e[0] === "0050");
-  // const { stockData, detail, ticker } = organizeDaily(item, "2021-07-02");
-  // const data = await getTMC("20210702");
-  // const item = data.find((e) => e[0] === "0050");
-  // const { stockData, detail, ticker } = organizeTMC(item, "2021-07-02");
-  // const tickerID = await Ticker.findOneAndUpdate({ ticker }, stockData, {
-  //   new: true,
-  //   upsert: true
-  // });
+// const data = await getStock("20210702");
+// const item = data.find((e) => e[0] === "0050");
+// const { stockData, detail, ticker } = organizeDaily(item, "2021-07-02");
+// const data = await getTMC("20210702");
+// const item = data.find((e) => e[0] === "0050");
+// const { stockData, detail, ticker } = organizeTMC(item, "2021-07-02");
+// const tickerID = await Ticker.findOneAndUpdate({ ticker }, stockData, {
+//   new: true,
+//   upsert: true
+// });
 
-  // await Detail.findOneAndUpdate(
-  //   { ticker: tickerID._id, date: "2021-07-02" },
-  //   { ticker: tickerID._id, ...detail },
-  //   { upsert: true }
-  // );
+// await Detail.findOneAndUpdate(
+//   { ticker: tickerID._id, date: "2021-07-02" },
+//   { ticker: tickerID._id, ...detail },
+//   { upsert: true }
+// );
+
+// async function start() {
+//   console.log("Start");
+
+//   const dateList = generateDateList();
+//   for ({ queryTime, storeTime } of dateList) {
+//     // const data = await getStock(queryTime).catch((err) => {
+//     //   console.log(err);
+//     // });
+//     const data = await getTMC(queryTime).catch((err) => {
+//       console.log(err);
+//     });
+//     await delay(1000, 1);
+//     if (data) {
+//       // 個股
+//       for (item of data) {
+//         // const { stockData, detail, ticker } = organizeDaily(item, storeTime);
+//         const { stockData, detail, ticker } = organizeTMC(item, storeTime);
+//         const tickerID = await Ticker.findOneAndUpdate({ ticker }, stockData, {
+//           new: true,
+//           upsert: true
+//         });
+//         await Detail.findOneAndUpdate(
+//           { ticker: tickerID._id, date: storeTime },
+//           { ticker: tickerID._id, ...detail },
+//           { upsert: true }
+//         );
+//       }
+//       console.log(`${storeTime} done`);
+//     }
+//   }
+//   console.log("done");
+//   // db.close();
+// }

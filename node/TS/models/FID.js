@@ -1,41 +1,13 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const Detail = new mongoose.Schema({
+const FID = new mongoose.Schema({
   ticker: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: "Ticker"
+    type: String,
+    required: true
   },
   date: {
     type: Date,
     required: true
-  },
-  ssc: {
-    type: Number
-  },
-  sc: {
-    type: Number
-  },
-  sp: {
-    type: Number
-  },
-  o: {
-    type: Number
-  },
-  h: {
-    type: Number
-  },
-  l: {
-    type: Number
-  },
-  c: {
-    type: Number
-  },
-  spread: {
-    type: Number
-  },
-  PER: {
-    type: Number
   },
   fibc: {
     type: Number
@@ -81,4 +53,4 @@ const Detail = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model("Detail", Detail);
+module.exports = mongoose.model("FID", FID);
