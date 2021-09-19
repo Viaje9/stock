@@ -1,38 +1,111 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view />
+    <nav class="bg-gray-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center">
+            <div class="hidden md:block">
+              <div class="ml-10 flex items-baseline space-x-4">
+                <a
+                  href="#"
+                  class="
+                    bg-gray-900
+                    text-white
+                    px-3
+                    py-2
+                    rounded-md
+                    text-sm
+                    font-medium
+                  "
+                  aria-current="page"
+                  >Dashboard</a
+                >
+
+                <a
+                  href="#"
+                  class="
+                    text-gray-300
+                    hover:bg-gray-700
+                    hover:text-white
+                    px-3
+                    py-2
+                    rounded-md
+                    text-sm
+                    font-medium
+                  "
+                  >Team</a
+                >
+
+                <a
+                  href="#"
+                  class="
+                    text-gray-300
+                    hover:bg-gray-700
+                    hover:text-white
+                    px-3
+                    py-2
+                    rounded-md
+                    text-sm
+                    font-medium
+                  "
+                  >Projects</a
+                >
+
+                <a
+                  href="#"
+                  class="
+                    text-gray-300
+                    hover:bg-gray-700
+                    hover:text-white
+                    px-3
+                    py-2
+                    rounded-md
+                    text-sm
+                    font-medium
+                  "
+                  >Calendar</a
+                >
+
+                <a
+                  href="#"
+                  class="
+                    text-gray-300
+                    hover:bg-gray-700
+                    hover:text-white
+                    px-3
+                    py-2
+                    rounded-md
+                    text-sm
+                    font-medium
+                  "
+                  >Reports</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <header class="bg-white shadow">
+      <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+      </div>
+    </header>
+    <main>
+      <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Replace with your content -->
+        <div class="px-4 py-6 sm:px-0">
+          <div
+            class="border-4 border-dashed border-gray-200 rounded-lg h-96"
+          >
+            <router-view></router-view>
+          </div>
+        </div>
+        <!-- /End replace -->
+      </div>
+    </main>
   </div>
 </template>
-<script>
-export default {
-  mounted() {
-    console.log(this);
-  },
-};
-</script>
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
 
-#nav {
-  padding: 30px;
 
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
-}
-</style>
