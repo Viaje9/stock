@@ -1,5 +1,5 @@
-import { createChart } from 'lightweight-charts';
+import { createChart } from "lightweight-charts";
 const install = (Vue) => {
-  Object.defineProperty(Vue.prototype, '$createChart', { value: createChart });
-}
-export default install
+  Object.defineProperty(Vue.prototype, "$createChart", { value: createChart });
+};
+export default install;
