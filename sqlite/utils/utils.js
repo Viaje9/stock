@@ -10,9 +10,9 @@ exports.formatQueryDate = function (date) {
   return dayjs(date).format("YYYYMMDD");
 };
 
-exports.generateDateList = function () {
+exports.generateDateList = function (startDate) {
   const dateList = [];
-  let date = dayjs("2020-1-1");
+  let date = dayjs(startDate);
   while (date.isBefore(dayjs())) {
     const queryTime = date.format("YYYYMMDD");
     const storeTime = date.format("YYYY-MM-DD");
@@ -22,7 +22,7 @@ exports.generateDateList = function () {
   return dateList;
 };
 
-exports.selectItem = function (e) {
+exports.selectTMC = function (e) {
   return [
     e[0],
     e[1],
@@ -40,5 +40,19 @@ exports.selectItem = function (e) {
     e[16],
     e[17],
     e[18],
+  ];
+};
+
+exports.selectIS = function (e) {
+  return [
+    e[0],
+    e[1],
+    e[2],
+    e[3],
+    e[4],
+    e[5],
+    e[6],
+    e[7],
+    e[8],
   ];
 };
