@@ -25,8 +25,7 @@
                   href="#"
                   class="
                     text-gray-300
-                    hover:bg-gray-700
-                    hover:text-white
+                    hover:bg-gray-700 hover:text-white
                     px-3
                     py-2
                     rounded-md
@@ -40,8 +39,7 @@
                   href="#"
                   class="
                     text-gray-300
-                    hover:bg-gray-700
-                    hover:text-white
+                    hover:bg-gray-700 hover:text-white
                     px-3
                     py-2
                     rounded-md
@@ -55,8 +53,7 @@
                   href="#"
                   class="
                     text-gray-300
-                    hover:bg-gray-700
-                    hover:text-white
+                    hover:bg-gray-700 hover:text-white
                     px-3
                     py-2
                     rounded-md
@@ -70,8 +67,7 @@
                   href="#"
                   class="
                     text-gray-300
-                    hover:bg-gray-700
-                    hover:text-white
+                    hover:bg-gray-700 hover:text-white
                     px-3
                     py-2
                     rounded-md
@@ -96,9 +92,7 @@
       <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <!-- Replace with your content -->
         <div class="px-4 py-6 sm:px-0">
-          <div
-            class="border-4 border-dashed border-gray-200 rounded-lg h-96"
-          >
+          <div class="border-4 border-dashed border-gray-200 rounded-lg h-96">
             <router-view></router-view>
           </div>
         </div>
@@ -107,5 +101,13 @@
     </main>
   </div>
 </template>
-
-
+<script>
+import { getMenu } from "@/api/stock";
+export default {
+  mounted() {
+    getMenu().then(({ data }) => {
+      console.log(data);
+    });
+  },
+};
+</script>
