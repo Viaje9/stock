@@ -1,6 +1,6 @@
 const sqlite3 = require("sqlite3").verbose();
 const ISDb = new sqlite3.Database("./database/ISTable.db");
-const TMCBb = new sqlite3.Database("./database/TMCTable.db");
+const TMCDb = new sqlite3.Database("./database/TMCTable.db");
 const CategoryDb = new sqlite3.Database("./database/Category.db");
 
 
@@ -18,7 +18,7 @@ class IndexController {
 
   static async getTMC(req, res) {
     const data = await new Promise((resolve, reject) => {
-      TMCBb.all(`SELECT * FROM TMCTable where stockId='${stockId}'`, function (err, row) {
+      TMCDb.all(`SELECT * FROM TMCTable where stockId='${stockId}'`, function (err, row) {
         if (err) reject("QQ");
         resolve(row);
       });
