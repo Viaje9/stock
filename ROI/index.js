@@ -2,11 +2,11 @@ const cheerio = require('cheerio');
 const axios = require('axios');
 const fs = require('fs');
 const iconv = require('iconv-lite');
-// axios.get('https://isin.twse.com.tw/isin/C_public.jsp?strMode=2', {
-//   responseType: 'arraybuffer',
-// }).then(({ data }) => {
-//   fs.writeFile('./html.txt', iconv.decode(data, '950'), () => console.log('done'))
-// })
+axios.get('https://isin.twse.com.tw/isin/C_public.jsp?strMode=2', {
+  responseType: 'arraybuffer',
+}).then(({ data }) => {
+  fs.writeFile('./html.txt', iconv.decode(data, '950'), () => console.log('done'))
+})
 
 
 

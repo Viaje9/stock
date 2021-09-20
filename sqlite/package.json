@@ -10,8 +10,10 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.21.4",
+    "cheerio": "*",
     "dayjs": "^1.10.7",
     "express": "^4.17.1",
+    "iconv-lite": "^0.4.24",
     "sqlite3": "^5.0.2"
   }
 }
