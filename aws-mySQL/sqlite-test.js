@@ -9,6 +9,7 @@ async function start() {
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }
+  console.time('queryTest');
   const IS = sequelize.define(
     "ISTable",
     {
@@ -32,8 +33,13 @@ async function start() {
     }
   );
   // Find all users
-  const data = await IS.findAll();
-  // console.log(data);
+  const data = await IS.findAll({
+    where: {
+      stockId: '2330'
+    }
+  });
+  console.log(data);
+  console.timeEnd('queryTest');
 }
 
 start();
