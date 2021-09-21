@@ -13,4 +13,4 @@ const IS = sequelize.define("IS", {
   date: DataTypes.TEXT
 });
 
-module.exports = User
+module.exports = IS
